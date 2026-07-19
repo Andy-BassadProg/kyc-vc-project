@@ -1,0 +1,51 @@
+services:
+  wallet-api:
+    image: waltid/wallet-api:${WALTID_VERSION:-latest}
+    container_name: kyc-wallet-api
+    ports:
+      - "7001:7001"
+    volumes:
+      - wallet-data:/waltid-wallet-api/data
+    networks: [waltid]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:7001/wallet-api/auth/user-info"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  issuer-api:
+    image: waltid/issuer-api:${WALTID_VERSION:-latest}
+    container_name: kyc-issuer-api
+    ports:
+      - "7002:7002"
+    networks: [waltid]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:7002/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  verifier-api:
+    image: waltid/verifier-api:${WALTID_VERSION:-latest}
+    container_name: kyc-verifier-api
+    ports:
+      - "7003:7003"
+    networks: [waltid]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:7003/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  wallet-data:
+
+networks:
+  waltid:
+    driver: bridge
